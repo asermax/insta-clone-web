@@ -1,5 +1,9 @@
 module.exports = {
   extends: ['airbnb', 'airbnb/hooks'],
+  env: {
+    node: true,
+    browser: true,
+  },
   settings: {
     'import/resolver': {
       alias: {

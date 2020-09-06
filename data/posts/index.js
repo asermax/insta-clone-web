@@ -1,0 +1,1 @@
+export { usePostsByUser } from './usePostsByUser';
