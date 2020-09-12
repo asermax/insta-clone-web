@@ -1,6 +1,8 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import { DefaultLayout } from '~/layouts';
 import { usePostsByUser } from '~/data/posts';
 
@@ -19,7 +21,7 @@ const PostsSection = styled.section`
   border-top: 0.0625rem solid #dbdbdb;
 `;
 
-const Post = styled.article`
+const Post = styled.a`
   img {
     width: 100%;
     height: 100%;
@@ -27,7 +29,7 @@ const Post = styled.article`
   }
 `;
 
-const User = () => {
+export const UserFeedLayout = ({ children }) => {
   const router = useRouter();
   const { data: posts } = usePostsByUser(router.query.user);
 
@@ -40,13 +42,27 @@ const User = () => {
       </UserSection>
       <PostsSection>
         {posts != null ? posts.map(({ id, images: [firstImage] }) => (
-          <Post key={id}>
-            <img src={firstImage.file} alt={firstImage.description} />
-          </Post>
+          <Link
+            key={id}
+            href="/[user]/[post]"
+            as={`/${router.query.user}/${id}`}
+            passHref
+          >
+            <Post>
+              <img src={firstImage.file} alt={firstImage.description} />
+            </Post>
+          </Link>
         )) : null}
       </PostsSection>
+      {children}
     </DefaultLayout>
   );
 };
 
-export default User;
+UserFeedLayout.propTypes = {
+  children: PropTypes.node,
+};
+
+UserFeedLayout.defaultProps = {
+  children: null,
+};
