@@ -8,9 +8,10 @@ import styled from 'styled-components';
 import { useRouter } from 'next/router';
 import useOnClickOutside from 'use-onclickoutside';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
-import { UserFeedLayout } from '~/layouts/UserFeedLayout';
-import { BaseContainer } from '~/components/BaseContainer';
 import { usePostById } from '~/data/posts';
+import { useCommentsByPost } from '~/data/comments';
+import { UserFeedLayout } from '~/layouts/UserFeedLayout';
+import { BaseContainer, UserLink, Comment } from '~/components';
 
 const Backdrop = styled.div`
   position: fixed;
@@ -108,10 +109,29 @@ const SwitchImageButton = styled.button`
   ${({ right }) => (right ? 'right: 1rem' : '')};
 `;
 
+const Info = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-left: 0.0625rem solid #dbdbdb;
+`;
+
+const UserInfo = styled.div`
+  padding: 1rem;
+  border-bottom: 0.0625rem solid #dbdbdb;
+`;
+
+const Comments = styled.div`
+  flex: 1;
+  padding: 1rem;
+  border-bottom: 0.0625rem solid #dbdbdb;
+`;
+
 const Post = () => {
   const containerRef = useRef(null);
   const router = useRouter();
   const { data: post } = usePostById(router.query.post);
+  const { data: comments } = useCommentsByPost(router.query.post);
   const [currentImage, setCurrentImage] = useState(0);
   const [movementDirection, setMovementDirection] = useState(null);
 
@@ -166,6 +186,25 @@ const Post = () => {
             </SwitchImageButton>
           ) : null}
         </Images>
+        <Info>
+          <UserInfo>
+            {post != null ? (
+              <UserLink username={router.query.user} />
+            ) : null}
+          </UserInfo>
+          <Comments>
+            {post != null ? (
+              <Comment
+                user={router.query.user}
+                comment={post.text}
+                createDate={post.createDate}
+              />
+            ) : null}
+            {comments != null ? comments.map((comment) => (
+              <Comment key={comment.id} {...comment} />
+            )) : null}
+          </Comments>
+        </Info>
       </Container>
     </Backdrop>
   );

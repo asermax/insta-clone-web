@@ -8,7 +8,9 @@
     "start": "next start"
   },
   "dependencies": {
+    "camelcase-keys": "^6.2.2",
     "js-cookie": "^2.2.1",
+    "luxon": "^1.25.0",
     "next": "9.5.3",
     "prop-types": "^15.7.2",
     "react": "16.13.1",
