@@ -9,8 +9,9 @@ const generateHeaders = () => ({
   'x-csrftoken': cookie.get('csrftoken'),
 });
 
-export const get = async (path) => {
+export const get = async (path, options) => {
   const response = await fetch(generateUrl(path), {
+    ...options,
     credentials: 'include',
     headers: generateHeaders(),
   });
@@ -19,8 +20,9 @@ export const get = async (path) => {
   return camelcaseKeys(data);
 };
 
-export const post = async (path, body) => {
+export const post = async (path, body, options) => {
   const response = await fetch(generateUrl(path), {
+    ...options,
     method: 'POST',
     headers: generateHeaders(),
     credentials: 'include',

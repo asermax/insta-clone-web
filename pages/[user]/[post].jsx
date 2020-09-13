@@ -8,8 +8,9 @@ import styled from 'styled-components';
 import { useRouter } from 'next/router';
 import useOnClickOutside from 'use-onclickoutside';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
+import TextareaAutosize from 'react-autosize-textarea';
 import { usePostById } from '~/data/posts';
-import { useCommentsByPost } from '~/data/comments';
+import { useCommentsByPost, useSendComment } from '~/data/comments';
 import { UserFeedLayout } from '~/layouts/UserFeedLayout';
 import { BaseContainer, UserLink, Comment } from '~/components';
 
@@ -123,8 +124,44 @@ const UserInfo = styled.div`
 
 const Comments = styled.div`
   flex: 1;
+  overflow: auto;
   padding: 1rem;
   border-bottom: 0.0625rem solid #dbdbdb;
+  scrollbar-width: none;
+`;
+
+const CommentBox = styled.form`
+  display: flex;
+  flex-direction: row;
+  padding: 1rem;
+
+  textarea {
+    flex: 1;
+    margin-right: 0.5rem;
+    resize: none;
+    border: none;
+    font-family: inherit;
+
+    &::placeholder {
+      color: #cbcbcb;
+    }
+
+    &:disabled {
+      opacity: 0.3;
+    }
+  }
+
+  button {
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: #0095f6;
+    font-weight: 700;
+
+    &:disabled {
+      opacity: 0.3;
+    }
+  }
 `;
 
 const Post = () => {
@@ -134,6 +171,7 @@ const Post = () => {
   const { data: comments } = useCommentsByPost(router.query.post);
   const [currentImage, setCurrentImage] = useState(0);
   const [movementDirection, setMovementDirection] = useState(null);
+  const [newComment, setNewComment] = useState('');
 
   const nextImage = useCallback(() => {
     setMovementDirection('right');
@@ -144,6 +182,17 @@ const Post = () => {
     setMovementDirection('left');
     setTimeout(() => setCurrentImage((current) => current - 1));
   }, [setMovementDirection, setCurrentImage]);
+
+  const [sendComment, { isLoading: sendingComment }] = useSendComment();
+  const onSubmit = useCallback((event) => {
+    event.preventDefault();
+    sendComment({
+      post: router.query.post,
+      comment: newComment,
+    }, {
+      onSuccess: () => setNewComment(''),
+    });
+  }, [newComment, router, sendComment, setNewComment]);
 
   useOnClickOutside(containerRef, () => router.push(`/${router.query.user}`));
 
@@ -204,6 +253,21 @@ const Post = () => {
               <Comment key={comment.id} {...comment} />
             )) : null}
           </Comments>
+          <CommentBox onSubmit={onSubmit}>
+            <TextareaAutosize
+              value={newComment}
+              onChange={(event) => setNewComment(event.target.value)}
+              placeholder="Escribí un comentario..."
+              maxRows={3}
+              disabled={sendingComment}
+            />
+            <button
+              type="submit"
+              disabled={newComment.trim() === '' || sendingComment}
+            >
+              Enviar
+            </button>
+          </CommentBox>
         </Info>
       </Container>
     </Backdrop>
