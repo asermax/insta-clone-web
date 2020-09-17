@@ -13,7 +13,7 @@ export const useSendComment = () => useMutation(sendComment, {
     const previousComments = queryCache.getQueryData(queryKey);
     const fakeComment = {
       id: FAKE_ID,
-      user: '...',
+      user: queryCache.getQueryData(['users', 'me']).username,
       comment: newComment.comment,
       createDate: DateTime.local().toISO(),
     };

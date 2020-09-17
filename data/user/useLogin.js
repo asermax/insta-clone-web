@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { queryCache } from 'react-query';
 import { post } from '../api';
 
 export const useLogin = (username, password) => {
@@ -11,6 +12,7 @@ export const useLogin = (username, password) => {
 
       if (status === 200) {
         setSuccess(true);
+        queryCache.setQueryData(['users', 'me'], () => data);
       } else {
         setError(data.detail);
       }

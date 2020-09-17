@@ -7,8 +7,10 @@ import React, {
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
 import useOnClickOutside from 'use-onclickoutside';
+import Link from 'next/link';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import TextareaAutosize from 'react-autosize-textarea';
+import { useUser } from '~/data/user';
 import { usePostById } from '~/data/posts';
 import { useCommentsByPost, useSendComment } from '~/data/comments';
 import { UserFeedLayout } from '~/layouts/UserFeedLayout';
@@ -151,12 +153,13 @@ const CommentBox = styled.form`
     }
   }
 
-  button {
+  button, a {
     border: none;
     background: none;
     cursor: pointer;
     color: #0095f6;
     font-weight: 700;
+    text-decoration: none;
 
     &:disabled {
       opacity: 0.3;
@@ -167,6 +170,7 @@ const CommentBox = styled.form`
 const Post = () => {
   const containerRef = useRef(null);
   const router = useRouter();
+  const { data: user, isLoading: userLoading } = useUser();
   const { data: post } = usePostById(router.query.post);
   const { data: comments } = useCommentsByPost(router.query.post);
   const [currentImage, setCurrentImage] = useState(0);
@@ -254,19 +258,31 @@ const Post = () => {
             )) : null}
           </Comments>
           <CommentBox onSubmit={onSubmit}>
-            <TextareaAutosize
-              value={newComment}
-              onChange={(event) => setNewComment(event.target.value)}
-              placeholder="Escribí un comentario..."
-              maxRows={3}
-              disabled={sendingComment}
-            />
-            <button
-              type="submit"
-              disabled={newComment.trim() === '' || sendingComment}
-            >
-              Enviar
-            </button>
+            {user != null ? (
+              <>
+                <TextareaAutosize
+                  value={newComment}
+                  onChange={(event) => setNewComment(event.target.value)}
+                  placeholder="Escribí un comentario..."
+                  maxRows={3}
+                  disabled={sendingComment}
+                />
+                <button
+                  type="submit"
+                  disabled={newComment.trim() === '' || sendingComment}
+                >
+                  Enviar
+                </button>
+              </>
+            ) : null}
+            {user == null && !userLoading ? (
+              <>
+                <Link href="/login">
+                  Login
+                </Link>
+                &nbsp;to comment.
+              </>
+            ) : null}
           </CommentBox>
         </Info>
       </Container>
