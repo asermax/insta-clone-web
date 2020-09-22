@@ -32,3 +32,14 @@ export const post = async (path, body, options) => {
 
   return [camelcaseKeys(data), response.status];
 };
+
+export const destroy = async (path, options) => {
+  const response = await fetch(generateUrl(path), {
+    ...options,
+    method: 'DELETE',
+    headers: generateHeaders(),
+    credentials: 'include',
+  });
+
+  return response.status;
+};

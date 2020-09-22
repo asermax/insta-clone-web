@@ -1,8 +1,8 @@
 import React, {
   useRef,
+  useMemo,
   useState,
   useCallback,
-  useEffect,
 } from 'react';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
@@ -13,8 +13,10 @@ import TextareaAutosize from 'react-autosize-textarea';
 import { useUser } from '~/data/user';
 import { usePostById } from '~/data/posts';
 import { useCommentsByPost, useSendComment } from '~/data/comments';
+import { usePostUserLike, useLikePost, useUnlikePost } from '~/data/likes';
 import { UserFeedLayout } from '~/layouts/UserFeedLayout';
 import { BaseContainer, UserLink, Comment } from '~/components';
+import { LikeIcon } from '~/components/LikeIcon';
 
 const Backdrop = styled.div`
   position: fixed;
@@ -132,10 +134,27 @@ const Comments = styled.div`
   scrollbar-width: none;
 `;
 
+const BottomContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const Actions = styled.div`
+  padding: 0.5rem 1rem;
+`;
+
+const LikeButton = styled.button`
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+`;
+
 const CommentBox = styled.form`
   display: flex;
   flex-direction: row;
   padding: 1rem;
+  border-top: 0.0625rem solid #dbdbdb;
 
   textarea {
     flex: 1;
@@ -170,9 +189,11 @@ const CommentBox = styled.form`
 const Post = () => {
   const containerRef = useRef(null);
   const router = useRouter();
+  const postId = useMemo(() => router && parseInt(router.query.post, 10), [router]);
   const { data: user, isLoading: userLoading } = useUser();
-  const { data: post } = usePostById(router.query.post);
-  const { data: comments } = useCommentsByPost(router.query.post);
+  const { data: post } = usePostById(postId);
+  const { data: comments } = useCommentsByPost(postId);
+  const { data: likes } = usePostUserLike(postId);
   const [currentImage, setCurrentImage] = useState(0);
   const [movementDirection, setMovementDirection] = useState(null);
   const [newComment, setNewComment] = useState('');
@@ -191,12 +212,22 @@ const Post = () => {
   const onSubmit = useCallback((event) => {
     event.preventDefault();
     sendComment({
-      post: router.query.post,
+      post: postId,
       comment: newComment,
     }, {
       onSuccess: () => setNewComment(''),
     });
-  }, [newComment, router, sendComment, setNewComment]);
+  }, [newComment, postId, sendComment, setNewComment]);
+
+  const [likePost] = useLikePost();
+  const [unlikePost] = useUnlikePost();
+  const onToggleLike = useCallback(() => {
+    if (likes && likes.length) {
+      unlikePost({ id: likes[0].id, post: postId, user: user.id });
+    } else {
+      likePost({ post: postId, user: user.id });
+    }
+  }, [postId, user, likes, likePost, unlikePost]);
 
   useOnClickOutside(containerRef, () => router.push(`/${router.query.user}`));
 
@@ -257,22 +288,34 @@ const Post = () => {
               <Comment key={comment.id} {...comment} />
             )) : null}
           </Comments>
-          <CommentBox onSubmit={onSubmit}>
+          <BottomContainer>
             {user != null ? (
               <>
-                <TextareaAutosize
-                  value={newComment}
-                  onChange={(event) => setNewComment(event.target.value)}
-                  placeholder="Escribí un comentario..."
-                  maxRows={3}
-                  disabled={sendingComment}
-                />
-                <button
-                  type="submit"
-                  disabled={newComment.trim() === '' || sendingComment}
-                >
-                  Enviar
-                </button>
+                <Actions>
+                  <LikeButton onClick={onToggleLike}>
+                    <LikeIcon
+                      liked={likes != null && likes.length > 0}
+                    />
+                  </LikeButton>
+                  <br />
+                  {post && post.likesCount}
+                  &nbsp;likes
+                </Actions>
+                <CommentBox onSubmit={onSubmit}>
+                  <TextareaAutosize
+                    value={newComment}
+                    onChange={(event) => setNewComment(event.target.value)}
+                    placeholder="Escribí un comentario..."
+                    maxRows={3}
+                    disabled={sendingComment}
+                  />
+                  <button
+                    type="submit"
+                    disabled={newComment.trim() === '' || sendingComment}
+                  >
+                    Enviar
+                  </button>
+                </CommentBox>
               </>
             ) : null}
             {user == null && !userLoading ? (
@@ -283,7 +326,7 @@ const Post = () => {
                 &nbsp;to comment.
               </>
             ) : null}
-          </CommentBox>
+          </BottomContainer>
         </Info>
       </Container>
     </Backdrop>
