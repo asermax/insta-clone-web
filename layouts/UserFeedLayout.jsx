@@ -3,8 +3,10 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { DefaultLayout } from '~/layouts';
 import { usePostsByUser } from '~/data/posts';
+import { DefaultLayout } from '~/layouts';
+import { LikeIcon } from '~/components/LikeIcon';
+import { CommentIcon } from '~/components/CommentIcon';
 
 const UserSection = styled.section`
   display: flex;
@@ -21,11 +23,40 @@ const PostsSection = styled.section`
   border-top: 0.0625rem solid #dbdbdb;
 `;
 
+const Overlay = styled.div`
+  display: none;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.3);
+  color: white;
+  font-weight: 700;
+
+  div {
+    display: flex;
+    align-items: center;
+  }
+
+  div + div {
+    margin-left: 1rem;
+  }
+`;
+
 const Post = styled.a`
+  position: relative;
+
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+
+  &:hover ${Overlay} {
+    display: flex;
   }
 `;
 
@@ -41,7 +72,12 @@ export const UserFeedLayout = ({ children }) => {
         </h1>
       </UserSection>
       <PostsSection>
-        {posts != null ? posts.map(({ id, images: [firstImage] }) => (
+        {posts != null ? posts.map(({
+          id,
+          images: [firstImage],
+          likesCount,
+          commentsCount,
+        }) => (
           <Link
             key={id}
             href="/[user]/[post]"
@@ -50,6 +86,20 @@ export const UserFeedLayout = ({ children }) => {
           >
             <Post>
               <img src={firstImage.file} alt={firstImage.description} />
+              <Overlay>
+                <div>
+                  <LikeIcon color="white" filled />
+                  &nbsp;
+                  &nbsp;
+                  {likesCount}
+                </div>
+                <div>
+                  <CommentIcon color="white" filled />
+                  &nbsp;
+                  &nbsp;
+                  {commentsCount}
+                </div>
+              </Overlay>
             </Post>
           </Link>
         )) : null}

@@ -22,6 +22,7 @@ export const useSendComment = () => useMutation(sendComment, {
     return () => queryCache.setQueryData(queryKey, previousComments);
   },
   onSuccess: ([createdComment], newComment) => {
+    queryCache.invalidateQueries('posts');
     queryCache.setQueryData(['comments', { post: newComment.post }], (old) => [
       ...old.filter(({ id }) => id !== FAKE_ID),
       createdComment,

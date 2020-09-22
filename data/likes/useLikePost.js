@@ -20,6 +20,7 @@ export const useLikePost = () => useMutation(likePost, {
     };
   },
   onSuccess: ([createdPostLike], postLike) => {
+    queryCache.invalidateQueries('posts');
     queryCache.setQueryData(['likes', postLike], [createdPostLike]);
   },
   onError: (_, __, rollback) => rollback(),

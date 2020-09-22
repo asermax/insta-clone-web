@@ -20,5 +20,8 @@ export const useUnlikePost = () => useMutation(unlikePost, {
       queryCache.setQueryData(likeQueryKey, [previousLike]);
     };
   },
+  onSuccess: () => {
+    queryCache.invalidateQueries('posts');
+  },
   onError: (_, __, rollback) => rollback(),
 });

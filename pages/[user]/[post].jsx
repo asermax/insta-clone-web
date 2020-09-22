@@ -197,6 +197,7 @@ const Post = () => {
   const [currentImage, setCurrentImage] = useState(0);
   const [movementDirection, setMovementDirection] = useState(null);
   const [newComment, setNewComment] = useState('');
+  const liked = useMemo(() => likes != null && likes.length > 0, [likes]);
 
   const nextImage = useCallback(() => {
     setMovementDirection('right');
@@ -294,7 +295,8 @@ const Post = () => {
                 <Actions>
                   <LikeButton onClick={onToggleLike}>
                     <LikeIcon
-                      liked={likes != null && likes.length > 0}
+                      color={liked ? 'red' : 'default'}
+                      filled={liked}
                     />
                   </LikeButton>
                   <br />

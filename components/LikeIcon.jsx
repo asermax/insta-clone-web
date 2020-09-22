@@ -1,15 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export const LikeIcon = ({ liked }) => (
+const colors = {
+  default: '#262626',
+  white: '#FFFFFF',
+  red: '#ED4956',
+};
+
+export const LikeIcon = ({ color, filled, label }) => (
   <svg
-    aria-label={liked ? 'Unlike' : 'Like'}
-    fill={liked ? '#ed4956' : '#262626'}
+    aria-label={label}
+    fill={colors[color]}
     height="24"
     viewBox="0 0 48 48"
     width="24"
   >
-    {liked ? (
+    {filled ? (
       <path
         d="M34.6 3.1c-4.5 0-7.9 1.8-10.6 5.6-2.7-3.7-6.1-5.5-10.6-5.5C6 3.1 0 9.6 0 17.6c0
           7.3 5.4 12 10.6 16.5.6.5 1.3 1.1 1.9 1.7l2.3 2c4.4 3.9 6.6 5.9 7.6 6.5.5.3 1.1.5
@@ -31,9 +37,13 @@ export const LikeIcon = ({ liked }) => (
 );
 
 LikeIcon.propTypes = {
-  liked: PropTypes.bool,
+  color: PropTypes.oneOf(Object.keys(colors)),
+  filled: PropTypes.bool,
+  label: PropTypes.string,
 };
 
 LikeIcon.defaultProps = {
-  liked: false,
+  color: 'default',
+  filled: false,
+  label: 'Like',
 };
