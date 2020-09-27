@@ -15,8 +15,14 @@ import { usePostById } from '~/data/posts';
 import { useCommentsByPost, useSendComment } from '~/data/comments';
 import { usePostUserLike, useLikePost, useUnlikePost } from '~/data/likes';
 import { UserFeedLayout } from '~/layouts/UserFeedLayout';
-import { BaseContainer, UserLink, Comment } from '~/components';
-import { LikeIcon } from '~/components/LikeIcon';
+import {
+  BaseContainer,
+  UserLink,
+  Comment,
+  LikeIcon,
+  Button,
+  FollowButton,
+} from '~/components';
 
 const Backdrop = styled.div`
   position: fixed;
@@ -135,8 +141,9 @@ const Comments = styled.div`
 `;
 
 const BottomContainer = styled.div`
+  padding: ${({ loggedIn }) => (loggedIn ? '0' : '1rem')};
   display: flex;
-  flex-direction: column;
+  flex-direction: ${({ loggedIn }) => (loggedIn ? 'column' : 'row')};
 `;
 
 const Actions = styled.div`
@@ -171,19 +178,6 @@ const CommentBox = styled.form`
       opacity: 0.3;
     }
   }
-
-  button, a {
-    border: none;
-    background: none;
-    cursor: pointer;
-    color: #0095f6;
-    font-weight: 700;
-    text-decoration: none;
-
-    &:disabled {
-      opacity: 0.3;
-    }
-  }
 `;
 
 const Post = () => {
@@ -197,6 +191,7 @@ const Post = () => {
   const [currentImage, setCurrentImage] = useState(0);
   const [movementDirection, setMovementDirection] = useState(null);
   const [newComment, setNewComment] = useState('');
+  const loggedIn = useMemo(() => user != null, [user]);
   const liked = useMemo(() => likes != null && likes.length > 0, [likes]);
 
   const nextImage = useCallback(() => {
@@ -273,9 +268,9 @@ const Post = () => {
         </Images>
         <Info>
           <UserInfo>
-            {post != null ? (
-              <UserLink username={router.query.user} />
-            ) : null}
+            <UserLink username={router.query.user} />
+            &nbsp;&nbsp;-&nbsp;&nbsp;
+            <FollowButton />
           </UserInfo>
           <Comments>
             {post != null ? (
@@ -289,8 +284,8 @@ const Post = () => {
               <Comment key={comment.id} {...comment} />
             )) : null}
           </Comments>
-          <BottomContainer>
-            {user != null ? (
+          <BottomContainer loggedIn={loggedIn}>
+            {loggedIn ? (
               <>
                 <Actions>
                   <LikeButton onClick={onToggleLike}>
@@ -311,21 +306,23 @@ const Post = () => {
                     maxRows={3}
                     disabled={sendingComment}
                   />
-                  <button
+                  <Button
                     type="submit"
                     disabled={newComment.trim() === '' || sendingComment}
                   >
                     Enviar
-                  </button>
+                  </Button>
                 </CommentBox>
               </>
             ) : null}
-            {user == null && !userLoading ? (
+            {!loggedIn && !userLoading ? (
               <>
-                <Link href="/login">
-                  Login
+                <Link href="/login" passHref>
+                  <Button as="a">
+                    Login
+                  </Button>
                 </Link>
-                &nbsp;to comment.
+                &nbsp;to like or comment.
               </>
             ) : null}
           </BottomContainer>

@@ -5,12 +5,11 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { usePostsByUser } from '~/data/posts';
 import { DefaultLayout } from '~/layouts';
-import { LikeIcon } from '~/components/LikeIcon';
-import { CommentIcon } from '~/components/CommentIcon';
+import { CommentIcon, LikeIcon, FollowButton } from '~/components';
 
 const UserSection = styled.section`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
 `;
@@ -70,6 +69,8 @@ export const UserFeedLayout = ({ children }) => {
         <h1>
           {router.query.user}
         </h1>
+        &nbsp;&nbsp;-&nbsp;&nbsp;
+        <FollowButton />
       </UserSection>
       <PostsSection>
         {posts != null ? posts.map(({

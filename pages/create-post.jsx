@@ -6,6 +6,7 @@ import TextareaAutosize from 'react-autosize-textarea';
 import { useUser } from '~/data/user';
 import { useCreatePost } from '~/data/posts';
 import { DefaultLayout } from '~/layouts';
+import { Button } from '~/components';
 
 const Container = styled(DefaultLayout)`
   display: flex;
@@ -61,21 +62,11 @@ const Description = styled.div`
   }
 `;
 
-const CreatePostButton = styled.button.attrs(() => ({
+const CreatePostButton = styled(Button).attrs(() => ({
   type: 'submit',
 }))`
   margin-top: 1rem;
   align-self: flex-end;
-  border: none;
-  background: none;
-  cursor: pointer;
-  color: #0095f6;
-  font-weight: 700;
-  text-decoration: none;
-
-  &:disabled {
-    opacity: 0.3;
-  }
 `;
 
 const CreatePost = () => {
