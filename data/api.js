@@ -17,7 +17,7 @@ export const get = async (path, options) => {
   });
   const data = await response.json();
 
-  return camelcaseKeys(data);
+  return camelcaseKeys(data, { deep: true });
 };
 
 export const post = async (path, body, options) => {
@@ -30,7 +30,7 @@ export const post = async (path, body, options) => {
   });
   const data = await response.json();
 
-  return [camelcaseKeys(data), response.status];
+  return [camelcaseKeys(data, { deep: true }), response.status];
 };
 
 export const destroy = async (path, options) => {

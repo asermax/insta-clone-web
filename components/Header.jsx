@@ -8,6 +8,7 @@ const Container = styled.header`
   width: 100%;
   border-bottom: 0.0625rem solid #dbdbdb;
   background-color: white;
+  z-index: 100;
 `;
 
 const CreatePostLink = styled.a`

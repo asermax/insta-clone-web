@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import { InView } from 'react-intersection-observer';
 import { usePostsByUser } from '~/data/posts';
 import { DefaultLayout } from '~/layouts';
 import { CommentIcon, LikeIcon, FollowButton } from '~/components';
@@ -61,7 +62,11 @@ const Post = styled.a`
 
 export const UserFeedLayout = ({ children }) => {
   const router = useRouter();
-  const { data: posts } = usePostsByUser(router.query.user);
+  const { posts, fetchMore, canFetchMore } = usePostsByUser(router.query.user);
+  const onIntersection = useCallback(
+    (inView) => (inView && canFetchMore ? fetchMore() : null),
+    [canFetchMore, fetchMore],
+  );
 
   return (
     <DefaultLayout>
@@ -83,6 +88,7 @@ export const UserFeedLayout = ({ children }) => {
             key={id}
             href="/[user]/[post]"
             as={`/${router.query.user}/${id}`}
+            scroll={false}
             passHref
           >
             <Post>
@@ -106,6 +112,7 @@ export const UserFeedLayout = ({ children }) => {
         )) : null}
       </PostsSection>
       {children}
+      <InView onChange={onIntersection} rootMargin="200px" />
     </DefaultLayout>
   );
 };
