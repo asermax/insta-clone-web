@@ -6,3 +6,4 @@ export { Button } from './Button';
 export { LikeIcon } from './LikeIcon';
 export { CommentIcon } from './CommentIcon';
 export { FollowButton } from './FollowButton';
+export { Slider } from './Slider';

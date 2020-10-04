@@ -37,9 +37,9 @@ const Login = () => {
 
   useEffect(() => {
     if (loginSuccess) {
-      router.push(`/${username}`);
+      router.push('/');
     }
-  }, [loginSuccess, username, router]);
+  }, [loginSuccess, router]);
 
   return (
     <Container>
